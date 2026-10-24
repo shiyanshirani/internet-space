@@ -1,0 +1,24 @@
+# Dependencies (also holds the vite-imagetools resize cache)
+node_modules/
+
+# Build output
+dist/
+*.tsbuildinfo
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Local AI-tool state
+.claude/settings.local.json
+.superpowers/

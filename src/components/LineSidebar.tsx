@@ -106,10 +106,11 @@ const LineSidebar = ({
     rafRef.current = moving ? requestAnimationFrame(runFrame) : null;
   }, []);
 
+  // Only start the loop if it is idle. Restarting it on every pointermove reset
+  // the frame clock, so dt shrank to the gap between events and the easing all
+  // but froze while the mouse was moving (worse the higher the mouse poll rate).
   const startLoop = useCallback(() => {
-    if (rafRef.current != null) {
-      cancelAnimationFrame(rafRef.current);
-    }
+    if (rafRef.current != null) return;
     lastRef.current = performance.now();
     rafRef.current = requestAnimationFrame(runFrame);
   }, [runFrame]);

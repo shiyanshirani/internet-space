@@ -1,6 +1,8 @@
 export type Place = {
   city: string;
   country: string;
+  /** Folder path `<country>/<city>`, used as the place's URL and grouping key. */
+  slug: string;
 };
 
 export type Photo = Place & {
@@ -47,7 +49,8 @@ function parsePath(path: string): (Place & { id: string }) | null {
     return null;
   }
   const [, , country, city, file] = parts;
-  return { id: `${country}/${city}/${file}`, city: titleCase(city), country: titleCase(country) };
+  const slug = `${country}/${city}`;
+  return { id: `${slug}/${file}`, slug, city: titleCase(city), country: titleCase(country) };
 }
 
 export function placeLabel({ city, country }: Place): string {
@@ -63,10 +66,14 @@ export const photos: Photo[] = Object.keys(sources)
 
 export const photoGroups: PhotoGroup[] = photos.reduce<PhotoGroup[]>((groups, photo) => {
   const last = groups[groups.length - 1];
-  if (last && last.city === photo.city && last.country === photo.country) {
+  if (last?.slug === photo.slug) {
     last.photos.push(photo);
   } else {
-    groups.push({ city: photo.city, country: photo.country, photos: [photo] });
+    groups.push({ city: photo.city, country: photo.country, slug: photo.slug, photos: [photo] });
   }
   return groups;
 }, []);
+
+export function getPhotoGroup(slug: string): PhotoGroup | undefined {
+  return photoGroups.find((group) => group.slug === slug);
+}

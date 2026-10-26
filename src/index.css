@@ -44,7 +44,9 @@
 .prose-post code {
   font-family: inherit;
 }
-.prose-post :not(pre) > code {
+/* Inline code only. `:not(pre) > code` also matched the highlighter's
+   <pre><div><code>, and inline left padding indented just the first line. */
+.prose-post code:not(pre code) {
   border-radius: 3px;
   background: #1a1a1a;
   padding: 0.1em 0.35em;

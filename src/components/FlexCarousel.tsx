@@ -43,6 +43,8 @@ export interface FlexCarouselProps extends Partial<PresetValues> {
   captureWheel?: boolean;
   onChange?: (index: number, item: FlexCarouselItem) => void;
   onSelect?: (index: number, item: FlexCarouselItem) => void;
+  /** Fires for a click (not a drag) on any card, centred or not. Local addition. */
+  onItemClick?: (index: number, item: FlexCarouselItem) => void;
   className?: string;
   style?: CSSProperties;
 }
@@ -120,6 +122,7 @@ interface Engine {
 interface Callbacks {
   onChange?: (index: number, item: FlexCarouselItem) => void;
   onSelect?: (index: number, item: FlexCarouselItem) => void;
+  onItemClick?: (index: number, item: FlexCarouselItem) => void;
 }
 
 const photo = (id: string) => `https://images.unsplash.com/${id}?w=1200&q=80&auto=format&fit=max`;
@@ -409,6 +412,7 @@ const FlexCarousel = ({
   captureWheel = true,
   onChange,
   onSelect,
+  onItemClick,
   className = '',
   style
 }: FlexCarouselProps) => {
@@ -416,7 +420,7 @@ const FlexCarousel = ({
   const settingsRef = useRef<Settings | null>(null);
   const itemsRef = useRef<FlexCarouselItem[]>(items);
   const engineRef = useRef<Engine | null>(null);
-  const callbacksRef = useRef<Callbacks>({ onChange, onSelect });
+  const callbacksRef = useRef<Callbacks>({ onChange, onSelect, onItemClick });
   const [active, setActive] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [focusOpen, setFocusOpen] = useState(false);
@@ -430,7 +434,7 @@ const FlexCarousel = ({
 
   useEffect(() => {
     itemsRef.current = list;
-    callbacksRef.current = { onChange, onSelect };
+    callbacksRef.current = { onChange, onSelect, onItemClick };
     settingsRef.current = {
       intro,
       cardHeight,
@@ -1213,6 +1217,7 @@ const FlexCarousel = ({
       const [x, y] = localPoint(e);
       const hit = instances.find(inst => x >= inst.x0 && x <= inst.x1 && y >= inst.y0 && y <= inst.y1);
       if (!hit) return;
+      callbacksRef.current.onItemClick?.(hit.index, itemsRef.current[hit.index]);
       if (hit.index === activeIndex && Math.abs(goal - pos) < 2) {
         callbacksRef.current.onSelect?.(hit.index, itemsRef.current[hit.index]);
         if (s.focusOnClick) openFocus(hit.index);
